@@ -1,0 +1,54 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 520364: <# this file was automaticly created by mpisubmit.pl script for edu-cmc-skmodel19-623-03 #;source /polusfs/setenv/setup.SMPI;#BSUB -n 1;#BSUB -W 00:05;#BSUB -o solution.%J.out;#BSUB -e solution.%J.err;OMP_NUM_THREADS=1 mpiexec solution 2048 10 1 1 1> in cluster <MSUCluster> Done
+
+Job <# this file was automaticly created by mpisubmit.pl script for edu-cmc-skmodel19-623-03 #;source /polusfs/setenv/setup.SMPI;#BSUB -n 1;#BSUB -W 00:05;#BSUB -o solution.%J.out;#BSUB -e solution.%J.err;OMP_NUM_THREADS=1 mpiexec solution 2048 10 1 1 1> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel19-623-03> in cluster <MSUCluster> at Fri Dec 13 01:41:29 2019
+Job was executed on host(s) <polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel19-623-03> in cluster <MSUCluster> at Fri Dec 13 01:41:54 2019
+</home_edu/edu-cmc-skmodel19-623/edu-cmc-skmodel19-623-03> was used as the home directory.
+</home_edu/edu-cmc-skmodel19-623/edu-cmc-skmodel19-623-03/SS/parabolic> was used as the working directory.
+Started at Fri Dec 13 01:41:54 2019
+Terminated at Fri Dec 13 01:42:33 2019
+Results reported at Fri Dec 13 01:42:33 2019
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+# this file was automaticly created by mpisubmit.pl script for edu-cmc-skmodel19-623-03 #
+source /polusfs/setenv/setup.SMPI
+#BSUB -n 1
+#BSUB -W 00:05
+#BSUB -o solution.%J.out
+#BSUB -e solution.%J.err
+OMP_NUM_THREADS=1 mpiexec solution 2048 10 1 1 1
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   11.36 sec.
+    Max Memory :                                 199 MB
+    Average Memory :                             162.62 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              5
+    Max Threads :                                12
+    Run time :                                   41 sec.
+    Turnaround time :                            64 sec.
+
+The output (if any) follows:
+
+2.22507e-308 < 2.38652e-07; stability criterion passed
+10 iterations disrepancy: 2.22507e-308
+Grid size: 2048
+MPI processes: 1
+OMP Threads: 1
+Time: 32.7611
+
+
+PS:
+
+Read file <solution.520364.err> for stderr output of this job.
+
