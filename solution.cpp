@@ -31,6 +31,7 @@ class Data
     int proc_amount_x, proc_amount_y;
     int proc_rank, proc_amount;
 
+    int neighbour(int shift_x, int shift_y);
     void sync_rows(int pos);
     void sync_columns(int pos);
 
@@ -85,12 +86,16 @@ Data::Data(int grid_size, int proc_amount, int proc_rank,
 	local_size_x = grid_size / proc_amount_x + (cur_proc_x == proc_amount_x - 1) * (grid_size % proc_amount_x);
 	local_size_y = grid_size / proc_amount_y + (cur_proc_y == proc_amount_y - 1) * (grid_size % proc_amount_y);
 
-	for (int i = -1; i < 2; i++)
-		halo.push_back((cur_proc_x + i) % proc_amount_x + ((cur_proc_y - 1) % proc_amount_y) * proc_amount_x);
-	halo.push_back((cur_proc_x + 1) % proc_amount_x + (cur_proc_y % proc_amount_y) * proc_amount_x);
-	for (int i = -1; i < 2; i++)
-		halo.push_back((cur_proc_x - i) % proc_amount_x + ((cur_proc_y + 1) % proc_amount_y) * proc_amount_x);
-	halo.push_back((cur_proc_x - 1) % proc_amount_x + (cur_proc_y % proc_amount_y) * proc_amount_x);
+	for (int i = -1; i < 2; i++) halo.push_back(neighbour(i, 1));
+	halo.push_back(neighbour(1, 0));
+	for (int i = -1; i < 2; i++) halo.push_back(neighbour(-i, -1));
+	halo.push_back(neighbour(-1, 0));
+}
+
+int Data::neighbour(int shift_x, int shift_y)
+{
+	return (cur_proc_x + shift_x + proc_amount_x) % proc_amount_x +
+	       (cur_proc_y - shift_y + proc_amount_y) % proc_amount_y * proc_amount_x;
 }
 
 void Data::Init(double xstep, double ystep, double xlim, double ylim)
