@@ -40,7 +40,7 @@ public:
          int proc_amount_x, int proc_amount_y);
 
     void Init(double xstep, double ystep, double xlim, double ylim);
-    void Shift(vector<vector<double> > &&new_data0, vector<vector<double> > &&new_data1);
+    void Shift(const vector<vector<double> > &new_data0, const vector<vector<double> > &new_data1);
     void Sync();
 
     double operator()(int u, int i, int j) { if (u == 0) return data0[i][j]; return data1[i][j]; }
@@ -113,10 +113,10 @@ void Data::Init(double xstep, double ystep, double xlim, double ylim)
 	}
 }
 
-void Data::Shift(vector<vector<double> > &&new_data0, vector<vector<double> > &&new_data1)
+void Data::Shift(const vector<vector<double> > &new_data0, const vector<vector<double> > &new_data1)
 {
-	data0 = move(new_data0);
-	data1 = move(new_data1);
+	data0 = new_data0;
+	data1 = new_data1;
 
 	if (proc_amount == 1) {
 		#pragma omp parallel for
@@ -299,12 +299,12 @@ int main(int argc, char **argv)
 	MPI_Comm_size(MPI_COMM_WORLD, &proc_amount);
 	MPI_Comm_rank(MPI_COMM_WORLD, &proc_rank);
 
-	int grid_size = int(strtol(argv[1], nullptr, 10));
-	int iterations = int(strtol(argv[2], nullptr, 10));
-	int proc_x = int(strtol(argv[3], nullptr, 10));
-	int proc_y = int(strtol(argv[4], nullptr, 10));
+	int grid_size = int(strtol(argv[1], NULL, 10));
+	int iterations = int(strtol(argv[2], NULL, 10));
+	int proc_x = int(strtol(argv[3], NULL, 10));
+	int proc_y = int(strtol(argv[4], NULL, 10));
 
-	int threads = int(strtol(argv[5], nullptr, 10));
+	int threads = int(strtol(argv[5], NULL, 10));
 	omp_set_num_threads(threads);
 
 	Solver solution(grid_size, 1, 1, proc_amount, proc_rank, proc_x, proc_y);
