@@ -1,0 +1,6 @@
+2.22507e-308 < 3.72575e-09; stability criterion passed
+10 iterations disrepancy: 2.22507e-308
+Grid size: 16384
+MPI processes: 128
+OMP Threads: 3
+Time: 18.2751
