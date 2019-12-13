@@ -1,0 +1,40 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 520725: <mpirun ./solution 2048 20 1 1> in cluster <MSUCluster> Done
+
+Job <mpirun ./solution 2048 20 1 1> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel19-623-03> in cluster <MSUCluster> at Fri Dec 13 15:03:53 2019
+Job was executed on host(s) <polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel19-623-03> in cluster <MSUCluster> at Fri Dec 13 15:03:53 2019
+</home_edu/edu-cmc-skmodel19-623/edu-cmc-skmodel19-623-03> was used as the home directory.
+</home_edu/edu-cmc-skmodel19-623/edu-cmc-skmodel19-623-03/SS/parabolic> was used as the working directory.
+Started at Fri Dec 13 15:03:53 2019
+Terminated at Fri Dec 13 15:04:14 2019
+Results reported at Fri Dec 13 15:04:14 2019
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+mpirun ./solution 2048 20 1 1
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   19.77 sec.
+    Max Memory :                                 198 MB
+    Average Memory :                             158.60 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                11
+    Run time :                                   22 sec.
+    Turnaround time :                            21 sec.
+
+The output (if any) follows:
+
+2.38652e-10 < 2.38652e-07; stability criterion passed
+20 iterations disrepancy: 2.44329e-10
+Grid size: 2048
+MPI processes: 1
+Time: 18.3081
