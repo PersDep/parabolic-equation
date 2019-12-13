@@ -6,7 +6,7 @@ import os
 
 results = defaultdict(lambda: defaultdict(float))
 
-directory = 'results'
+directory = 'results_polus'
 for file in os.listdir(os.fsencode(directory)):
     data = open(directory + '/' + os.fsdecode(file), 'r').readlines()
     grid_size = 0
@@ -24,12 +24,8 @@ for file in os.listdir(os.fsencode(directory)):
             time = float(line.split(': ')[1])
     results[grid_size][nodes] = time
 
-print('GridSize', 'NodesAmount', 'TimeMPI', 'AccelerationMPI',
-                                 'TimeMPIopenmp', 'AccelerationMPIopenmp', 'MPIopenmp/MPI')
+print('GridSize', 'NodesAmount', 'TimeMPI', 'AccelerationMPI')
 for type, nodes in results.items():
     for nodes_amount, time in sorted(nodes.items()):
         if 'openmp' not in type:
-            print(type, nodes_amount, '%.3f' % time, '%.3f' % (results[type][128] / time),
-                  '%.3f' % results[type + '-openmp'][nodes_amount],
-                  '%.3f' % (results[type + '-openmp'][128] / results[type + '-openmp'][nodes_amount]),
-                  '%.3f' % (time / results[type + '-openmp'][nodes_amount]))
+            print(type, nodes_amount, '%.3f' % time, '%.3f' % (results[type][1] / time))
