@@ -217,12 +217,12 @@ Solver::Solver(int grid_size, double xlim, double ylim,
                int proc_amount_x, int proc_amount_y) :
 	data(grid_size, proc_amount, proc_rank, proc_amount_x, proc_amount_y), xlim(xlim), ylim(ylim), cur_iter(0)
 {
-	eps = numeric_limits<double>::min();
 	xstep = xlim / (grid_size - 1);
 	ystep = ylim / (grid_size - 1);
 	xstepsqr = xstep * xstep;
 	ystepsqr = ystep * ystep;
 	xystep = 4 * xstep * ystep;
+	eps = xstepsqr * 0.001;
 	data.Init(xstep, ystep, xlim, ylim);
 	if (proc_rank == 0) {
 		if (eps < min(xstepsqr, ystepsqr))
