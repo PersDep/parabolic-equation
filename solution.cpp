@@ -1,11 +1,9 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
-#include <limits>
 #include <vector>
 
 #include <mpi.h>
-#include <omp.h>
 
 using namespace std;
 
@@ -102,7 +100,6 @@ void Data::Init(double xstep, double ystep, double xlim, double ylim)
 {
 	data0 = vector<vector<double> >(local_size_y + 2, vector<double>(local_size_x + 2, 0));
 	data1 = vector<vector<double> >(local_size_y + 2, vector<double>(local_size_x + 2, 0));
-	#pragma omp parallel for
 	for(int i = 1; i < local_size_y + 1; i++) {
 		int global_i = GetGlobalI(i - 1);
 		for (int j = 1; j < local_size_x + 1; j++) {
@@ -119,7 +116,6 @@ void Data::Shift(vector<vector<double> > &&new_data0, vector<vector<double> > &&
 	data1 = move(new_data1);
 
 	if (proc_amount == 1) {
-		#pragma omp parallel for
 		for(int i = 1; i < local_size_y + 1; i++)
 			data1[1][i] = data1[local_size_y][i];
 	} else {
@@ -152,7 +148,6 @@ void Data::sync_columns(int pos)
 	double send[2][local_size_y], recv[2][local_size_y];
 	int j_send = local_size_x, j_recv = 0;
 	if (pos == 7) j_send = 1, j_recv = local_size_x + 1;
-	#pragma omp parallel for
 	for (int i = 1; i < local_size_y + 1; i++) {
 		send[0][i - 1] = data0[i][j_send];
 		send[1][i - 1] = data1[i][j_send];
@@ -160,7 +155,6 @@ void Data::sync_columns(int pos)
 	MPI_Sendrecv(send, local_size_y * 2, MPI_DOUBLE, halo[pos], 1,
 	             recv, local_size_y * 2, MPI_DOUBLE, halo[(pos + 4) % halo.size()],
 	             1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-	#pragma omp parallel for
 	for (int i = 1; i < local_size_y + 1; i++) {
 		data0[i][j_recv] = recv[0][i - 1];
 		data1[i][j_recv] = recv[1][i - 1];
@@ -266,7 +260,6 @@ void Solver::Iterate()
 	data.Sync();
 	vector<vector<double> > new_data0(data.GetLocalSizeY() + 2, vector<double>(data.GetLocalSizeX() + 2, 0));
 	vector<vector<double> > new_data1(data.GetLocalSizeY() + 2, vector<double>(data.GetLocalSizeX() + 2, 0));
-	#pragma omp parallel for
 	for(int i = 1; i < data.GetLocalSizeY() + 1; i++) {
 		int global_i = data.GetGlobalI(i - 1);
 		for(int j = 1; j < data.GetLocalSizeX() + 1; j++) {
@@ -304,9 +297,6 @@ int main(int argc, char **argv)
 	int proc_x = int(strtol(argv[3], nullptr, 10));
 	int proc_y = int(strtol(argv[4], nullptr, 10));
 
-	int threads = int(strtol(argv[5], nullptr, 10));
-	omp_set_num_threads(threads);
-
 	Solver solution(grid_size, 1, 1, proc_amount, proc_rank, proc_x, proc_y);
 	double time = MPI_Wtime();
 	for (int i = 0; i < iterations; i++) solution.Iterate();
@@ -316,7 +306,6 @@ int main(int argc, char **argv)
 	if (proc_rank == 0) {
 		cout << "Grid size: " << grid_size << endl
 		     << "MPI processes: " << proc_amount << endl
-		     << "OMP Threads: " << threads << endl
 		     << "Time: " << time << endl;
 	}
 
