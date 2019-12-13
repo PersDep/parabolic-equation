@@ -100,20 +100,17 @@ int Data::neighbour(int shift_x, int shift_y)
 
 void Data::Init(double xstep, double ystep, double xlim, double ylim)
 {
-	data0.push_back(vector<double>(local_size_x + 2, 0));
-	data1.push_back(vector<double>(local_size_x + 2, 0));
+	data0 = vector<vector<double> >(local_size_y + 2, vector<double>(local_size_x + 2, 0));
+	data1 = vector<vector<double> >(local_size_y + 2, vector<double>(local_size_x + 2, 0));
+	#pragma omp parallel for
 	for(int i = 1; i < local_size_y + 1; i++) {
 		int global_i = GetGlobalI(i - 1);
-		data0.push_back(vector<double>(1, 0)); data1.push_back(vector<double>(1, 0));
 		for (int j = 1; j < local_size_x + 1; j++) {
 			int global_j = GetGlobalJ(j - 1);
-			data0[i].push_back(u0(global_j * xstep, global_i * ystep, 0, xlim, ylim));
-			data1[i].push_back(u1(global_j * xstep, global_i * ystep, 0, xlim, ylim));
+			data0[i][j] = u0(global_j * xstep, global_i * ystep, 0, xlim, ylim);
+			data1[i][j] = u1(global_j * xstep, global_i * ystep, 0, xlim, ylim);
 		}
-		data0[i].push_back(0); data1[i].push_back(0);
 	}
-	data0.push_back(vector<double>(local_size_x + 2, 0));
-	data1.push_back(vector<double>(local_size_x + 2, 0));
 }
 
 void Data::Shift(vector<vector<double> > &&new_data0, vector<vector<double> > &&new_data1)
@@ -153,18 +150,15 @@ void Data::sync_rows(int pos)
 
 void Data::sync_columns(int pos)
 {
-	vector<vector<double> > send(2);
-	double recv[2][local_size_y];
-
+	double send[2][local_size_y], recv[2][local_size_y];
 	int j_send = local_size_x, j_recv = 0;
 	if (pos == 7) j_send = 1, j_recv = local_size_x + 1;
-
 	#pragma omp parallel for
 	for (int i = 1; i < local_size_y + 1; i++) {
-		send[0].push_back(data0[i][j_send]);
-		send[1].push_back(data1[i][j_send]);
+		send[0][i - 1] = data0[i][j_send];
+		send[1][i - 1] = data1[i][j_send];
 	}
-	MPI_Sendrecv(send.data(), local_size_y * 2, MPI_DOUBLE, halo[pos], 1,
+	MPI_Sendrecv(send, local_size_y * 2, MPI_DOUBLE, halo[pos], 1,
 	             recv, local_size_y * 2, MPI_DOUBLE, halo[(pos + 4) % halo.size()],
 	             1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	#pragma omp parallel for
@@ -271,33 +265,29 @@ void Solver::Iterate()
 {
 	double tau = ++cur_iter * eps;
 	data.Sync();
-	vector<vector<double> > new_data0(1, vector<double>(data.GetLocalSizeX() + 2, 0));
-	vector<vector<double> > new_data1(1, vector<double>(data.GetLocalSizeX() + 2, 0));
+	vector<vector<double> > new_data0(data.GetLocalSizeY() + 2, vector<double>(data.GetLocalSizeX() + 2, 0));
+	vector<vector<double> > new_data1(data.GetLocalSizeY() + 2, vector<double>(data.GetLocalSizeX() + 2, 0));
 	#pragma omp parallel for
 	for(int i = 1; i < data.GetLocalSizeY() + 1; i++) {
 		int global_i = data.GetGlobalI(i - 1);
-		new_data0.push_back(vector<double>(1, 0)); new_data1.push_back(vector<double>(1, 0));
 		for(int j = 1; j < data.GetLocalSizeX() + 1; j++) {
 			int global_j = data.GetGlobalJ(j - 1);
 			if (global_j == 0) {
-				new_data0[i].push_back(0);
-				new_data1[i].push_back((4 * data(1, i, j + 1) - data(1, i, j + 2)) / 3);
+				new_data0[i][j] = 0;
+				new_data1[i][j] = (4 * data(1, i, j + 1) - data(1, i, j + 2)) / 3;
 			} else if (global_j == data.GetGridSize() - 1) {
-				new_data0[i].push_back(0);
-				new_data1[i].push_back((4 * data(1, i, j - 1) - data(1, i, j - 2)) / 3);
+				new_data0[i][j] = 0;
+				new_data1[i][j] = (4 * data(1, i, j - 1) - data(1, i, j - 2)) / 3;
 			} else {
-				new_data0[i].push_back((laplas(0, i, j) + 2 * nabla_div(0, i, j) + inc(1, i, j) +
-				                        f0(global_j * xstep, global_i * ystep, tau, xlim, ylim)) * eps
-				                       + data(0, i, j));
-				new_data1[i].push_back((laplas(1, i, j) + 2 * nabla_div(1, i, j) + inc(0, i, j) +
-				                        f1(global_j * xstep, global_i * ystep, tau, xlim, ylim)) * eps
-				                       + data(1, i, j));
+				new_data0[i][j] = (laplas(0, i, j) + 2 * nabla_div(0, i, j) + inc(1, i, j) +
+						   f0(global_j * xstep, global_i * ystep, tau, xlim, ylim)) * eps
+				                   + data(0, i, j);
+				new_data1[i][j] = (laplas(1, i, j) + 2 * nabla_div(1, i, j) + inc(0, i, j) +
+						  f1(global_j * xstep, global_i * ystep, tau, xlim, ylim)) * eps
+				                  + data(1, i, j);
 			}
 		}
-		new_data0[i].push_back(0); new_data1[i].push_back(0);
 	}
-	new_data0.push_back(vector<double>(data.GetLocalSizeX() + 2, 0));
-	new_data1.push_back(vector<double>(data.GetLocalSizeX() + 2, 0));
 	data.Shift(move(new_data0), move(new_data1));
 }
 
