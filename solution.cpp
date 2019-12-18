@@ -192,24 +192,24 @@ void Data::Sync()
 
 double f0(double x, double y, double t, double xlim, double ylim)
 {
-	return sin(M_PI * x / xlim) * sin(2 * M_PI * y / ylim) *
+	return sin(M_PI * x / xlim) * cos(2 * M_PI * y / ylim) *
 	       (cos(t) - M_PI_SQR * (1 / (xlim * xlim) + 4 / (ylim * ylim)) * sin(t));
 }
 
 double f1(double x, double y, double t, double xlim, double ylim)
 {
-	return cos(M_PI * x / xlim) * sin(2 * M_PI * y / ylim) *
+	return cos(M_PI * x / xlim) * cos(2 * M_PI * y / ylim) *
 	       (cos(t) - M_PI_SQR * (1 / (xlim * xlim) + 4 / (ylim * ylim)) * sin(t));
 }
 
 double u0(double x, double y, double t, double xlim, double ylim)
 {
-	return sin(M_PI * x / xlim) * sin(2 * M_PI * y / ylim) * sin(t);
+	return sin(M_PI * x / xlim) * cos(2 * M_PI * y / ylim) * sin(t);
 }
 
 double u1(double x, double y, double t, double xlim, double ylim)
 {
-	return cos(M_PI * x / xlim) * sin(2 * M_PI * y / ylim) * sin(t);
+	return cos(M_PI * x / xlim) * cos( 2 * M_PI * y / ylim) * sin(t);
 }
 
 Solver::Solver(int grid_size, double xlim, double ylim,
