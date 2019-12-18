@@ -136,13 +136,12 @@ void Data::Shift(vector<vector<double> > &&new_data0, vector<vector<double> > &&
 
 void Data::sync_rows(int pos)
 {
-	int i_send = 1, i_recv = local_size_y + 1;
-	if (pos == 5) i_send = local_size_y, i_recv = 0;
+	int i_send = cur_proc_y ? 1 : 2;
+	int i_recv = local_size_y + 1;
+	if (pos == 5) i_send = local_size_y - (cur_proc_y == proc_amount_y - 1 ? 1 : 0), i_recv = 0;
 	MPI_Sendrecv(&data0[i_send][1], local_size_x, MPI_DOUBLE, halo[pos], 1,
 	             &data0[i_recv][1], local_size_x, MPI_DOUBLE, halo[(pos + 4) % halo.size()],
 	             1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-	i_send = cur_proc_y ? 1 : 2;
-	if (pos == 5) i_send = local_size_y - (cur_proc_y == proc_amount_y - 1 ? 1 : 0);
 	MPI_Sendrecv(&data1[i_send][1], local_size_x, MPI_DOUBLE, halo[pos], 1,
 	             &data1[i_recv][1], local_size_x, MPI_DOUBLE, halo[(pos + 4) % halo.size()],
 	             1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
